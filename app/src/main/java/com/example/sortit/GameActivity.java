@@ -1,46 +1,106 @@
 package com.example.sortit;
 
-import android.content.Intent;
+import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.StrictMode;
-import android.view.View;
-import android.widget.Button;
+import android.util.DisplayMetrics;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.Arrays;
 
 import okhttp3.*;
 
-public class GameActivity extends AppCompatActivity {
+public class GameActivity extends AppCompatActivity implements SensorEventListener {
     String[] stockPeople = {};
     String[] criminals = {};
     String[] cats = {};
     String[] dogs = {};
+    private SensorManager sensorManager;
+    private Sensor accelerator;
+    int hardCodedID = 010400;
+    DisplayMetrics displayMetrics = new DisplayMetrics();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         java.text.DateFormat dateFormat = android.text.format.DateFormat.getDateFormat(getApplicationContext()); //what does this even doo i dont know but it fixes something lol
         super.onCreate(savedInstanceState);
-
+        accelerator = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         setContentView(R.layout.activity_game);
-        try {
-            getCriminals();
-            getStockPeople();
-            getDogs();
-            getCats();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+    }
+
+    public int getRandom(int min, int max) {
+        return (int) (min + Math.floor(Math.random() * (max - min + 1)));
+    }
+
+    public void spawn() {
+        LinearLayout layout = (LinearLayout) findViewById(R.id.gamelayout);
+        ImageView ivBasicImage = (ImageView) findViewById(R.id.dumbFuckingPicture);
+
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int height = displayMetrics.heightPixels;
+        int width = displayMetrics.widthPixels;
+        int rand = getRandom(1, 2);
+        if (rand == 1) {
+            int randArrVal = getRandom(0, criminals.length - 1);
+            ImageView image = new ImageView(this);
+            //ivBasicImage.setLayoutParams(new android.view.ViewGroup.LayoutParams(200,200));
+            //ivBasicImage.setX(height/2);
+            //ivBasicImage.setY(width/2);
+            ivBasicImage.setBackgroundColor(getResources().getColor(R.color.black));
+            //image.setId(hardCodedID); // i hardcode the id so i can always find it and because i always plan to only load one image at a time it should befine
+            Picasso.get().load(criminals[randArrVal]).into(ivBasicImage);
+            // Adds the view to the layout
+            //layout.addView(image);
+            layout.refreshDrawableState();
+
+        }/*else if(rand== 2){
+            int randArrVal = getRandom(0,dogs.length);
+            ImageView image = new ImageView(this);
+            image.setLayoutParams(new android.view.ViewGroup.LayoutParams(500,500));
+            image.setX(height/2);
+            image.setY(width/2);
+            image.setId(hardCodedID); // i hardcode the id so i can always find it and because i always plan to only load one image at a time it should befine
+            Picasso.get().load(dogs[randArrVal]).into(image);            // Adds the view to the layout
+            layout.addView(image);
+        }*/ else if (rand == 2) {
+            int randArrVal = getRandom(0, stockPeople.length - 1);
+            ImageView image = new ImageView(this);
+            // ivBasicImage.setLayoutParams(new android.view.ViewGroup.LayoutParams(200,200));
+            //ivBasicImage.setX(height/2);
+            //ivBasicImage.setY(width/2);
+            //image.setId(hardCodedID); // i hardcode the id so i can always find it and because i always plan to only load one image at a time it should befine
+            ivBasicImage.setBackgroundColor(getResources().getColor(R.color.black));
+            Picasso.get().load(stockPeople[randArrVal]).into(ivBasicImage);            // Adds the view to the layout
+            //layout.addView(ivBasicImage);
+            //layout.refreshDrawableState();
+        }/*else if(rand == 4){
+            int randArrVal = getRandom(0,cats.length);
+
+            ImageView image = new ImageView(this);
+            image.setLayoutParams(new android.view.ViewGroup.LayoutParams(500,500));
+            image.setX(height/2);
+            image.setY(width/2);
+            image.setId(hardCodedID); // i hardcode the id so i can always find it and because i always plan to only load one image at a time it should befine
+            Picasso.get().load(cats[randArrVal]).into(image);
+            // Adds the view to the layout
+            layout.addView(image);
+        }*/
 
 
     }
@@ -68,6 +128,7 @@ public class GameActivity extends AppCompatActivity {
             JSONObject object = Jarray.getJSONObject(i);
             criminals = Arrays.copyOf(criminals, criminals.length + 1);
             criminals[criminals.length - 1] = object.getString("mugshot");
+            System.out.println(object.getString("mugshot"));
         }
     }
 
@@ -94,6 +155,7 @@ public class GameActivity extends AppCompatActivity {
             JSONObject object = Jarray.getJSONObject(i);
             stockPeople = Arrays.copyOf(stockPeople, stockPeople.length + 1);
             stockPeople[stockPeople.length - 1] = object.getString("url");
+            System.out.println(object.getString("url"));
         }
     }
 
@@ -148,4 +210,55 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        float x = sensorEvent.values[0];
+        float y = sensorEvent.values[2];
+
+
+
+        ImageView ivBasicImage = (ImageView) findViewById(R.id.dumbFuckingPicture);
+
+        ivBasicImage.setX(ivBasicImage.getX()+x*10);
+        ivBasicImage.setY(ivBasicImage.getY()+y*10);
+
+        // System.out.println("X:"+String.valueOf(x)+" Y: " +String.valueOf(y)+" Z: "+ String.valueOf(z));
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+
+    }
+
+    @Override
+    protected void onPause() {
+        sensorManager.unregisterListener(this, accelerator);
+        super.onPause();
+    }
+
+    @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
+        super.onPointerCaptureChanged(hasCapture);
+    }
+
+    @Override
+    protected void onResume() {
+        // Register a listener for the sensor.
+
+        super.onResume();
+        try {
+            getCriminals();
+            getStockPeople();
+            //getDogs();
+            //getCats();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        spawn();
+
+        sensorManager.registerListener(this, accelerator, SensorManager.SENSOR_DELAY_NORMAL);
+    }
 }
