@@ -40,7 +40,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         java.text.DateFormat dateFormat = android.text.format.DateFormat.getDateFormat(getApplicationContext()); //what does this even doo i dont know but it fixes something lol
         super.onCreate(savedInstanceState);
-        accelerator = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        accelerator = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         setContentView(R.layout.activity_game);
     }
 
@@ -140,7 +140,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                 .build();
         MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
         Request request = new Request.Builder()
-                .url("https://pexelsdimasv1.p.rapidapi.com/v1/search?query=mugshot&locale=en-US&per_page=10&page=1")
+                .url("https://pexelsdimasv1.p.rapidapi.com/v1/search?query=mugshot&locale=en-US&per_page=2")
                 .method("GET", null)
                 .addHeader("Authorization", "563492ad6f91700001000001ddd8be82192b429ab31f5adc64661679")
                 .addHeader("X-RapidAPI-Key", "e451035421msh38c089d44761c42p1b4070jsn3ebb2f8a409c")
@@ -153,9 +153,12 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
 
         for (int i = 0; i < Jarray.length(); i++) {
             JSONObject object = Jarray.getJSONObject(i);
+            System.out.println(object.toString());
+
             stockPeople = Arrays.copyOf(stockPeople, stockPeople.length + 1);
-            stockPeople[stockPeople.length - 1] = object.getString("url");
-            System.out.println(object.getString("url"));
+            String srcString = object.getJSONObject("src").getString("tiny");
+            stockPeople[stockPeople.length - 1] = srcString;
+            System.out.println(srcString);
         }
     }
 
@@ -215,15 +218,17 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         float x = sensorEvent.values[0];
-        float y = sensorEvent.values[2];
+        float y = sensorEvent.values[1];
 
 
 
         ImageView ivBasicImage = (ImageView) findViewById(R.id.dumbFuckingPicture);
 
-        ivBasicImage.setX(ivBasicImage.getX()+x*10);
-        ivBasicImage.setY(ivBasicImage.getY()+y*10);
+        ivBasicImage.setX(ivBasicImage.getX()+y*255);
+        ivBasicImage.setY(ivBasicImage.getY()+x*255);
 
+
+        if (ivBasicImage.getX() >)
         // System.out.println("X:"+String.valueOf(x)+" Y: " +String.valueOf(y)+" Z: "+ String.valueOf(z));
     }
 
@@ -257,6 +262,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         } catch (IOException e) {
             e.printStackTrace();
         } catch (JSONException e) {
+            System.out.println(e);
             e.printStackTrace();
         }
         spawn();
