@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
-    Counter counter = new Counter(30);
+
     Score score = new Score();
 
 
@@ -16,7 +16,9 @@ public class MainActivity extends AppCompatActivity {
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+        protected void onCreate(Bundle savedInstanceState) {
+        score.setScore(0);
+        score.setHighscore(0);
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
@@ -26,7 +28,12 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // Code here executes on main thread after user presses button
                 // in our case we switch to GameActivity
-                startActivity(new Intent(MainActivity.this, GameActivity.class));
+                Intent i  = new Intent(MainActivity.this, GameActivity.class);
+                System.out.println(score.getScore()+" "+score.getHighscore());
+                i.putExtra("score",score.getScore());
+                i.putExtra("highscore",score.getHighscore());
+                startActivity(i);
+
             }
         });
     }

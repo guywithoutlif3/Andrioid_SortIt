@@ -5,6 +5,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.DisplayMetrics;
@@ -25,6 +26,7 @@ import java.util.Arrays;
 import okhttp3.*;
 
 public class GameActivity extends AppCompatActivity implements SensorEventListener {
+    Counter counter = new Counter(30);
     String[] stockPeople = {};
     String[] criminals = {};
     String[] cats = {};
@@ -34,9 +36,19 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     int hardCodedID = 010400;
     DisplayMetrics displayMetrics = new DisplayMetrics();
 
+    int score;
+    int highscore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //get score and highscore from mainActivity
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            score = extras.getInt("score");
+            highscore = extras.getInt("highscore");
+            //TODO: send highscore back to main Activity
+        }
+
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         java.text.DateFormat dateFormat = android.text.format.DateFormat.getDateFormat(getApplicationContext()); //what does this even doo i dont know but it fixes something lol
         super.onCreate(savedInstanceState);
@@ -64,6 +76,9 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             //ivBasicImage.setY(width/2);
             ivBasicImage.setBackgroundColor(getResources().getColor(R.color.black));
             //image.setId(hardCodedID); // i hardcode the id so i can always find it and because i always plan to only load one image at a time it should befine
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                ivBasicImage.setAccessibilityPaneTitle("criminal");
+            }
             Picasso.get().load(criminals[randArrVal]).into(ivBasicImage);
             // Adds the view to the layout
             //layout.addView(image);
@@ -86,6 +101,9 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             //ivBasicImage.setY(width/2);
             //image.setId(hardCodedID); // i hardcode the id so i can always find it and because i always plan to only load one image at a time it should befine
             ivBasicImage.setBackgroundColor(getResources().getColor(R.color.black));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                ivBasicImage.setAccessibilityPaneTitle("stock");
+            }
             Picasso.get().load(stockPeople[randArrVal]).into(ivBasicImage);            // Adds the view to the layout
             //layout.addView(ivBasicImage);
             layout.refreshDrawableState();
@@ -219,7 +237,9 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     public void onSensorChanged(SensorEvent sensorEvent) {
         float x = sensorEvent.values[0];
         float y = sensorEvent.values[1];
-
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int height = displayMetrics.heightPixels;
+        int width = displayMetrics.widthPixels;
 
 
         ImageView ivBasicImage = (ImageView) findViewById(R.id.dumbFuckingPicture);
@@ -228,10 +248,55 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         ivBasicImage.setY(ivBasicImage.getY()+x*255);
 
 
-        if (ivBasicImage.getX() >)
+        if (ivBasicImage.getY() > height){
+            System.out.println("down");
+            checkCategory("down");
+        } else if (ivBasicImage.getY() <= 0) {
+            System.out.println("up");
+            checkCategory("up");
+        } else if (ivBasicImage.getX() > width) {
+            System.out.println("right");
+            checkCategory("right");
+
+        }else if (ivBasicImage.getX() <= 0) {
+            System.out.println("left");
+            checkCategory("left");
+
+        }
         // System.out.println("X:"+String.valueOf(x)+" Y: " +String.valueOf(y)+" Z: "+ String.valueOf(z));
     }
+    public void checkCategory(String direction){
+        ImageView ivBasicImage = (ImageView) findViewById(R.id.dumbFuckingPicture);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+            String category = (String) ivBasicImage.getAccessibilityPaneTitle();
 
+
+        if(direction == "down"){
+            if (category == "stock"){
+                addToScore();
+                System.out.println(score);
+            }else{gameOver();}
+        } else if (direction == "up") {
+            if (category == "criminal"){
+                addToScore();
+                System.out.println(score);
+            }else{gameOver();}
+        }
+
+
+        }
+    }
+    public void addToScore(){
+
+        score++;
+        if (score > highscore){
+            highscore++;
+        }
+
+    }
+    public void gameOver(){
+        System.out.println("gameOver");
+    }
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
 
