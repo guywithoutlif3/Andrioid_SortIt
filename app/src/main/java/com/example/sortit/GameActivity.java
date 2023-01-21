@@ -88,7 +88,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             ivBasicImage.setBackgroundColor(getResources().getColor(R.color.black));
             Picasso.get().load(stockPeople[randArrVal]).into(ivBasicImage);            // Adds the view to the layout
             //layout.addView(ivBasicImage);
-            //layout.refreshDrawableState();
+            layout.refreshDrawableState();
         }/*else if(rand == 4){
             int randArrVal = getRandom(0,cats.length);
 
@@ -180,6 +180,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             JSONObject object = Jarray.getJSONObject(i);
             cats = Arrays.copyOf(cats, cats.length + 1);
             cats[cats.length - 1] = object.getString("url");
+            System.out.println(object.getString("url"));
         }
 
 
@@ -207,6 +208,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             System.out.println();
             dogs = Arrays.copyOf(dogs, dogs.length + 1);
             dogs[dogs.length - 1] = Jarray.get(i).toString();
+            System.out.println(Jarray.get(i).toString());
         }
     }
 
