@@ -9,8 +9,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.DisplayMetrics;
+import android.view.Gravity;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -54,6 +58,10 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         super.onCreate(savedInstanceState);
         accelerator = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         setContentView(R.layout.activity_game);
+
+
+        counter.countdown();
+        gameOverByTimeout();
     }
 
     public int getRandom(int min, int max) {
@@ -64,24 +72,20 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         LinearLayout layout = (LinearLayout) findViewById(R.id.gamelayout);
         ImageView ivBasicImage = (ImageView) findViewById(R.id.dumbFuckingPicture);
 
-        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        int height = displayMetrics.heightPixels;
-        int width = displayMetrics.widthPixels;
+
+       // LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(900,900);
+
+        //params.gravity = Gravity.CENTER;
+        //ivBasicImage.setLayoutParams(params);
         int rand = getRandom(1, 2);
         if (rand == 1) {
             int randArrVal = getRandom(0, criminals.length - 1);
-            ImageView image = new ImageView(this);
-            //ivBasicImage.setLayoutParams(new android.view.ViewGroup.LayoutParams(200,200));
-            //ivBasicImage.setX(height/2);
-            //ivBasicImage.setY(width/2);
             ivBasicImage.setBackgroundColor(getResources().getColor(R.color.black));
-            //image.setId(hardCodedID); // i hardcode the id so i can always find it and because i always plan to only load one image at a time it should befine
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 ivBasicImage.setAccessibilityPaneTitle("criminal");
             }
             Picasso.get().load(criminals[randArrVal]).into(ivBasicImage);
-            // Adds the view to the layout
-            //layout.addView(image);
+            ivBasicImage.refreshDrawableState();
             layout.refreshDrawableState();
 
         }/*else if(rand== 2){
@@ -95,17 +99,12 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             layout.addView(image);
         }*/ else if (rand == 2) {
             int randArrVal = getRandom(0, stockPeople.length - 1);
-            ImageView image = new ImageView(this);
-            // ivBasicImage.setLayoutParams(new android.view.ViewGroup.LayoutParams(200,200));
-            //ivBasicImage.setX(height/2);
-            //ivBasicImage.setY(width/2);
-            //image.setId(hardCodedID); // i hardcode the id so i can always find it and because i always plan to only load one image at a time it should befine
             ivBasicImage.setBackgroundColor(getResources().getColor(R.color.black));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 ivBasicImage.setAccessibilityPaneTitle("stock");
             }
             Picasso.get().load(stockPeople[randArrVal]).into(ivBasicImage);            // Adds the view to the layout
-            //layout.addView(ivBasicImage);
+            ivBasicImage.refreshDrawableState();
             layout.refreshDrawableState();
         }/*else if(rand == 4){
             int randArrVal = getRandom(0,cats.length);
@@ -266,6 +265,9 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         // System.out.println("X:"+String.valueOf(x)+" Y: " +String.valueOf(y)+" Z: "+ String.valueOf(z));
     }
     public void checkCategory(String direction){
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int height = displayMetrics.heightPixels;
+        int width = displayMetrics.widthPixels;
         ImageView ivBasicImage = (ImageView) findViewById(R.id.dumbFuckingPicture);
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
             String category = (String) ivBasicImage.getAccessibilityPaneTitle();
@@ -275,11 +277,17 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             if (category == "stock"){
                 addToScore();
                 System.out.println(score);
+                spawn();
+                ivBasicImage.setX(300 );
+                ivBasicImage.setY(1000 );
             }else{gameOver();}
         } else if (direction == "up") {
             if (category == "criminal"){
                 addToScore();
                 System.out.println(score);
+                spawn();
+                ivBasicImage.setX(300 );
+                ivBasicImage.setY(1000 );
             }else{gameOver();}
         }
 
@@ -287,8 +295,9 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         }
     }
     public void addToScore(){
-
+        final TextView scoreOnView = this.<TextView>findViewById(R.id.Score);
         score++;
+        scoreOnView.setText(Integer.toString(score));
         if (score > highscore){
             highscore++;
         }
@@ -301,7 +310,15 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     public void onAccuracyChanged(Sensor sensor, int i) {
 
     }
-
+    public void gameOverByTimeout(){
+        //TODO: Make countdown work and load onto screen
+        final TextView countdownOnView = this.<TextView>findViewById(R.id.countdown);
+        while (counter.getCounter() > 0){
+            countdownOnView.setText(Integer.toString(counter.getCounter()));
+            System.out.println(counter.getCounter());
+        }
+        if (counter.getCounter() == 0){gameOver();}
+    }
     @Override
     protected void onPause() {
         sensorManager.unregisterListener(this, accelerator);
@@ -318,6 +335,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         // Register a listener for the sensor.
 
         super.onResume();
+
         try {
             getCriminals();
             getStockPeople();

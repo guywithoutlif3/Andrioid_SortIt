@@ -20,7 +20,7 @@ public class Counter {
         this.counter = counter;
     }
 
-    public boolean countdown(int counter){
+    public boolean countdown(){
         while(counter >= 0){
            counter--;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
