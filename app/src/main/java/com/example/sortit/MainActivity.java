@@ -6,10 +6,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
-    Score score = new Score();
+    int score ;
+    int highscore ;
 
 
 
@@ -17,11 +19,22 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
         protected void onCreate(Bundle savedInstanceState) {
-        score.setScore(0);
-        score.setHighscore(0);
+        score= 0;
+        highscore = 0;
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            score = extras.getInt("score");
+            highscore = extras.getInt("highscore");
+
+            TextView viewHighscore = (TextView) findViewById(R.id.highscore1);
+            viewHighscore.setText(" " + highscore);
+
+        }
 
         final Button button = this.<Button>findViewById(R.id.startGameBtn);
         button.setOnClickListener(new View.OnClickListener() {
@@ -29,9 +42,9 @@ public class MainActivity extends AppCompatActivity {
                 // Code here executes on main thread after user presses button
                 // in our case we switch to GameActivity
                 Intent i  = new Intent(MainActivity.this, GameActivity.class);
-                System.out.println(score.getScore()+" "+score.getHighscore());
-                i.putExtra("score",score.getScore());
-                i.putExtra("highscore",score.getHighscore());
+
+                i.putExtra("score",score);
+                i.putExtra("highscore",highscore);
                 startActivity(i);
 
             }

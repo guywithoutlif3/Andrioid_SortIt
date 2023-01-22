@@ -23,15 +23,27 @@
         android:id="@+id/highscore"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="29dp"
         android:text="0"
-        tools:layout_editor_absoluteX="122dp"
-        tools:layout_editor_absoluteY="302dp" />
+        app:layout_constraintStart_toStartOf="@+id/textView2"
+        app:layout_constraintTop_toBottomOf="@+id/textView2" />
 
     <TextView
         android:id="@+id/score"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
         android:text="0"
-        tools:layout_editor_absoluteX="122dp"
-        tools:layout_editor_absoluteY="339dp" />
+        app:layout_constraintStart_toStartOf="@+id/highscore"
+        app:layout_constraintTop_toBottomOf="@+id/highscore" />
+
+    <Button
+        android:id="@+id/back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="42dp"
+        android:text="Back to main screen"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/score" />
 </androidx.constraintlayout.widget.ConstraintLayout>

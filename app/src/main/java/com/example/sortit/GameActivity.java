@@ -1,6 +1,7 @@
 package com.example.sortit;
 
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -315,6 +316,11 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
 
     public void gameOver() {
         System.out.println("gameOver");
+        Intent i  = new Intent(GameActivity.this, GameOver.class);
+        System.out.println(score+" "+highscore);
+        i.putExtra("score",score);
+        i.putExtra("highscore",highscore);
+        startActivity(i);
     }
 
     @Override
