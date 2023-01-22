@@ -19,6 +19,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
         protected void onCreate(Bundle savedInstanceState) {
+        //TODO: Save the Highscore even on close andd everything
         score= 0;
         highscore = 0;
         super.onCreate(savedInstanceState);

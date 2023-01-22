@@ -54,7 +54,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         if (extras != null) {
             score = extras.getInt("score");
             highscore = extras.getInt("highscore");
-            //TODO: send highscore back to main Activity
+
         }
 
 
