@@ -20,15 +20,5 @@ public class Counter {
         this.counter = counter;
     }
 
-    public boolean countdown(){
-        while(counter >= 0){
-           counter--;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                CompletableFuture.delayedExecutor(1, TimeUnit.SECONDS).execute(() -> {
 
-                });
-            }
-        }
-        return false;
-    }
 }

@@ -7,6 +7,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.StrictMode;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
@@ -26,18 +27,20 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.*;
 
 public class GameActivity extends AppCompatActivity implements SensorEventListener {
-    Counter counter = new Counter(30);
+    int counter = 30;
+
     String[] stockPeople = {};
     String[] criminals = {};
     String[] cats = {};
     String[] dogs = {};
     private SensorManager sensorManager;
     private Sensor accelerator;
-    int hardCodedID = 010400;
     DisplayMetrics displayMetrics = new DisplayMetrics();
 
     int score;
@@ -53,6 +56,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             //TODO: send highscore back to main Activity
         }
 
+
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         java.text.DateFormat dateFormat = android.text.format.DateFormat.getDateFormat(getApplicationContext()); //what does this even doo i dont know but it fixes something lol
         super.onCreate(savedInstanceState);
@@ -60,7 +64,6 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         setContentView(R.layout.activity_game);
 
 
-        counter.countdown();
         gameOverByTimeout();
     }
 
@@ -73,7 +76,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         ImageView ivBasicImage = (ImageView) findViewById(R.id.dumbFuckingPicture);
 
 
-       // LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(900,900);
+        // LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(900,900);
 
         //params.gravity = Gravity.CENTER;
         //ivBasicImage.setLayoutParams(params);
@@ -243,11 +246,11 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
 
         ImageView ivBasicImage = (ImageView) findViewById(R.id.dumbFuckingPicture);
 
-        ivBasicImage.setX(ivBasicImage.getX()+y*255);
-        ivBasicImage.setY(ivBasicImage.getY()+x*255);
+        ivBasicImage.setX(ivBasicImage.getX() + y * 255);
+        ivBasicImage.setY(ivBasicImage.getY() + x * 255);
 
 
-        if (ivBasicImage.getY() > height){
+        if (ivBasicImage.getY() > height) {
             System.out.println("down");
             checkCategory("down");
         } else if (ivBasicImage.getY() <= 0) {
@@ -257,14 +260,15 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             System.out.println("right");
             checkCategory("right");
 
-        }else if (ivBasicImage.getX() <= 0) {
+        } else if (ivBasicImage.getX() <= 0) {
             System.out.println("left");
             checkCategory("left");
 
         }
         // System.out.println("X:"+String.valueOf(x)+" Y: " +String.valueOf(y)+" Z: "+ String.valueOf(z));
     }
-    public void checkCategory(String direction){
+
+    public void checkCategory(String direction) {
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int height = displayMetrics.heightPixels;
         int width = displayMetrics.widthPixels;
@@ -273,52 +277,71 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             String category = (String) ivBasicImage.getAccessibilityPaneTitle();
 
 
-        if(direction == "down"){
-            if (category == "stock"){
-                addToScore();
-                System.out.println(score);
-                spawn();
-                ivBasicImage.setX(300 );
-                ivBasicImage.setY(1000 );
-            }else{gameOver();}
-        } else if (direction == "up") {
-            if (category == "criminal"){
-                addToScore();
-                System.out.println(score);
-                spawn();
-                ivBasicImage.setX(300 );
-                ivBasicImage.setY(1000 );
-            }else{gameOver();}
-        }
+            if (direction == "down") {
+                if (category == "stock") {
+                    addToScore();
+                    System.out.println(score);
+                    spawn();
+                    ivBasicImage.setX(300);
+                    ivBasicImage.setY(1000);
+                } else {
+                    gameOver();
+                }
+            } else if (direction == "up") {
+                if (category == "criminal") {
+                    addToScore();
+                    System.out.println(score);
+                    spawn();
+                    ivBasicImage.setX(300);
+                    ivBasicImage.setY(1000);
+                } else {
+                    gameOver();
+                }
+            }
 
 
         }
     }
-    public void addToScore(){
+
+    public void addToScore() {
         final TextView scoreOnView = this.<TextView>findViewById(R.id.Score);
         score++;
         scoreOnView.setText(Integer.toString(score));
-        if (score > highscore){
+        if (score > highscore) {
             highscore++;
         }
 
     }
-    public void gameOver(){
+
+    public void gameOver() {
         System.out.println("gameOver");
     }
+
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
 
     }
-    public void gameOverByTimeout(){
+
+    public void gameOverByTimeout() {
         //TODO: Make countdown work and load onto screen
-        final TextView countdownOnView = this.<TextView>findViewById(R.id.countdown);
-        while (counter.getCounter() > 0){
-            countdownOnView.setText(Integer.toString(counter.getCounter()));
-            System.out.println(counter.getCounter());
-        }
-        if (counter.getCounter() == 0){gameOver();}
+        TextView countdownOnView = this.<TextView>findViewById(R.id.countdown);
+        //stack oevrflow help i found for this: https://stackoverflow.com/questions/10032003/how-to-make-a-countdown-timer-in-android?newreg=c2817f9bbeaa4cf3afe7c3db9ebe9833
+        new CountDownTimer(30000, 1000) {
+
+            public void onTick(long ms) {
+                countdownOnView.setText("countdown: " + ms / 1000);
+
+            }
+
+            public void onFinish() {
+                countdownOnView.setText("done!");
+                gameOver();
+            }
+
+        }.start();
+
     }
+
     @Override
     protected void onPause() {
         sensorManager.unregisterListener(this, accelerator);
