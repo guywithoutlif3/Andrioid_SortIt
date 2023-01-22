@@ -323,9 +323,8 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     }
 
     public void gameOverByTimeout() {
-        //TODO: Make countdown work and load onto screen
         TextView countdownOnView = this.<TextView>findViewById(R.id.countdown);
-        //stack oevrflow help i found for this: https://stackoverflow.com/questions/10032003/how-to-make-a-countdown-timer-in-android?newreg=c2817f9bbeaa4cf3afe7c3db9ebe9833
+        //stack overflow help i found for this: https://stackoverflow.com/questions/10032003/how-to-make-a-countdown-timer-in-android?newreg=c2817f9bbeaa4cf3afe7c3db9ebe9833
         new CountDownTimer(30000, 1000) {
 
             public void onTick(long ms) {
