@@ -57,6 +57,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     CountDownLatch latch = new CountDownLatch(4);
     int score;
     int highscore;
+    CountDownTimer yourCountDownTimer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -467,6 +468,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
 
     //Makes Player loose and send them to game over sceen / activity with theit score and highscore
     public void gameOver() {
+        yourCountDownTimer.cancel(); // stop timer
         Intent i = new Intent(GameActivity.this, GameOver.class); // new intent
         i.putExtra("score", score); // send score with intent
         i.putExtra("highscore", highscore); // send highscore with intent
@@ -483,7 +485,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     public void gameOverByTimeout() {
         TextView countdownOnView = this.<TextView>findViewById(R.id.countdown);
         //stack overflow help i found for this: https://stackoverflow.com/questions/10032003/how-to-make-a-countdown-timer-in-android?newreg=c2817f9bbeaa4cf3afe7c3db9ebe9833
-        new CountDownTimer(30000, 1000) {
+        yourCountDownTimer = new CountDownTimer(30000, 1000) {
             public void onTick(long ms) {
                 countdownOnView.setText("countdown: " + ms / 1000); // setting time left on View
             }
