@@ -35,6 +35,12 @@ import java.util.concurrent.TimeUnit;
 import okhttp3.*;
 
 public class GameActivity extends AppCompatActivity implements SensorEventListener {
+    //intitalization of everything
+    /*
+     * here i intizalize everything for later global use like all my arrays with the images
+     * or ther sensor manager used for the gyro and the actual sensor for the gyor i also
+     * intit here
+     * also score and highscore get inited here*/
     int counter = 30;
 
     String[] stockPeople = {};
@@ -42,7 +48,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     String[] cats = {};
     String[] dogs = {};
     private SensorManager sensorManager;
-    private Sensor accelerator;
+    private Sensor gyro;
     DisplayMetrics displayMetrics = new DisplayMetrics();
 
     int score;
@@ -58,37 +64,43 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
 
         }
 
-
+        //register a sensorService on my sensorManafer
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         java.text.DateFormat dateFormat = android.text.format.DateFormat.getDateFormat(getApplicationContext()); //what does this even doo i dont know but it fixes something lol
         super.onCreate(savedInstanceState);
-        accelerator = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+        // register my sensor with the actual GYROSCOPE Sennsr -> get sensor
+        gyro = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+        //set Context View for the activity
         setContentView(R.layout.activity_game);
 
-
+        //start the countdown
         gameOverByTimeout();
     }
 
+    //a function to get a random int between MIN and MAX given into the function
     public int getRandom(int min, int max) {
         return (int) (min + Math.floor(Math.random() * (max - min + 1)));
     }
 
+    //responsible for spawning a new image in the middle of the screen upon game launch and
+    //when a new image is supposed to be spawned when scorred
     public void spawn() {
+        //get the gameLayout from View
         LinearLayout layout = (LinearLayout) findViewById(R.id.gamelayout);
+        //get the image where the image get inserted / spawned into from View
         ImageView ivBasicImage = (ImageView) findViewById(R.id.dumbFuckingPicture);
-
-
-        // LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(900,900);
-
-        //params.gravity = Gravity.CENTER;
-        //ivBasicImage.setLayoutParams(params);
+        //get ramdom 1 or 2 for randomzing spawn of either criminal or stock person
+        //TODO: implement DOG and CAT Again
         int rand = getRandom(1, 2);
         if (rand == 1) {
-            int randArrVal = getRandom(0, criminals.length - 1);
+            // Case for Criminals
+            int randArrVal = getRandom(0, criminals.length - 1); // get a random img from assigned array
             ivBasicImage.setBackgroundColor(getResources().getColor(R.color.black));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                //I set this to check later if the user sorted the image correctly
                 ivBasicImage.setAccessibilityPaneTitle("criminal");
             }
+            //get the ImageMatrix / data of the url and right after load it into the image on screen
             Picasso.get().load(criminals[randArrVal]).into(ivBasicImage);
             ivBasicImage.refreshDrawableState();
             layout.refreshDrawableState();
@@ -103,11 +115,14 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             Picasso.get().load(dogs[randArrVal]).into(image);            // Adds the view to the layout
             layout.addView(image);
         }*/ else if (rand == 2) {
-            int randArrVal = getRandom(0, stockPeople.length - 1);
+            // Case for Stock images
+            int randArrVal = getRandom(0, stockPeople.length - 1); // get a random img from assigned array
             ivBasicImage.setBackgroundColor(getResources().getColor(R.color.black));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                //I set this to check later if the user sorted the image correctly
                 ivBasicImage.setAccessibilityPaneTitle("stock");
             }
+            //get the ImageMatrix / data of the url and right after load it into the image on screen
             Picasso.get().load(stockPeople[randArrVal]).into(ivBasicImage);            // Adds the view to the layout
             ivBasicImage.refreshDrawableState();
             layout.refreshDrawableState();
@@ -127,22 +142,28 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
 
     }
 
+    //get all the images thru the jailbase API and sort them into their array "crimnials"
     public void getCriminals() throws IOException, JSONException {
+        //make Policy permit all
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
                 .permitAll().build();
         StrictMode.setThreadPolicy(policy);
+        // New okHttp client
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .build();
+        // set media type of querry
         MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
+        // build the request
         Request request = new Request.Builder()
                 .url("https://jailbase-jailbase.p.rapidapi.com/recent/?source_id=ar-jcso")
                 .method("GET", null)
                 .addHeader("X-RapidAPI-Key", "e451035421msh38c089d44761c42p1b4070jsn3ebb2f8a409c")
                 .addHeader("X-RapidAPI-Host", "jailbase-jailbase.p.rapidapi.com")
                 .build();
+        // execute the query
         Response response = client.newCall(request).execute();
 
-
+        // part bellow goes into the JSON Object and sorts the images urls into their array
         JSONObject Jobject = new JSONObject(response.body().string());
         JSONArray Jarray = Jobject.getJSONArray("records");
 
@@ -154,13 +175,18 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
+    //get all the images thru the pexels API and sort them into their array "stockPeople"
     public void getStockPeople() throws IOException, JSONException {
+        //make Policy permit all
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
                 .permitAll().build();
         StrictMode.setThreadPolicy(policy);
+        // build the request
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .build();
+        // set media type of querry
         MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
+        // build the request
         Request request = new Request.Builder()
                 .url("https://pexelsdimasv1.p.rapidapi.com/v1/search?query=mugshot&locale=en-US&per_page=2")
                 .method("GET", null)
@@ -168,11 +194,12 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                 .addHeader("X-RapidAPI-Key", "e451035421msh38c089d44761c42p1b4070jsn3ebb2f8a409c")
                 .addHeader("X-RapidAPI-Host", "PexelsdimasV1.p.rapidapi.com")
                 .build();
+        // execute the query
         Response response = client.newCall(request).execute();
 
+        // part bellow goes into the JSON Object and sorts the images urls into their array
         JSONObject Jobject = new JSONObject(response.body().string());
         JSONArray Jarray = Jobject.getJSONArray("photos");
-
         for (int i = 0; i < Jarray.length(); i++) {
             JSONObject object = Jarray.getJSONObject(i);
             System.out.println(object.toString());
@@ -237,21 +264,23 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
-    @Override
+    @Override // if the sensor Changed then set the X and Y accordingly = movement
     public void onSensorChanged(SensorEvent sensorEvent) {
-        float x = sensorEvent.values[0];
-        float y = sensorEvent.values[1];
-        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        int height = displayMetrics.heightPixels;
-        int width = displayMetrics.widthPixels;
+        float x = sensorEvent.values[0]; // get X
+        float y = sensorEvent.values[1]; // get Y
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics); // get Screen Metrics
+        int height = displayMetrics.heightPixels; // Screen Height
+        int width = displayMetrics.widthPixels; // Screen Width
 
-
+        //get image so i can move it
         ImageView ivBasicImage = (ImageView) findViewById(R.id.dumbFuckingPicture);
-
+        // Move the Image according to theit current X and Y postion and the Sensor value
+        //*255 for accalarted speed
         ivBasicImage.setX(ivBasicImage.getX() + y * 255);
         ivBasicImage.setY(ivBasicImage.getY() + x * 255);
 
-
+        //here i see if the image has left the bounds on eiter of the 4 sides and if did
+        // i call  the function checkCategory which is responsible for checking if correct or not
         if (ivBasicImage.getY() > height) {
             System.out.println("down");
             checkCategory("down");
@@ -267,22 +296,24 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             checkCategory("left");
 
         }
-        // System.out.println("X:"+String.valueOf(x)+" Y: " +String.valueOf(y)+" Z: "+ String.valueOf(z));
     }
-
+    // This function is responsible for checking the direction of the moved image and act accordingly
     public void checkCategory(String direction) {
-        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        int height = displayMetrics.heightPixels;
-        int width = displayMetrics.widthPixels;
+        // get image to set X and Y
         ImageView ivBasicImage = (ImageView) findViewById(R.id.dumbFuckingPicture);
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+            //This i get to check the category of the image later
             String category = (String) ivBasicImage.getAccessibilityPaneTitle();
 
-
+            //checks direction and each direction is assigned to a category
+            // if correct I call the addToScore function to add to score
+            // spawn to respawn a new image
+            /* ivBasicImage.setX(300) ivBasicImage.setY(1000); These lines are for resetting position
+            Back to middle*/
+            // If wrong gameOver gets called
             if (direction == "down") {
                 if (category == "stock") {
                     addToScore();
-                    System.out.println(score);
                     spawn();
                     ivBasicImage.setX(300);
                     ivBasicImage.setY(1000);
@@ -292,7 +323,6 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             } else if (direction == "up") {
                 if (category == "criminal") {
                     addToScore();
-                    System.out.println(score);
                     spawn();
                     ivBasicImage.setX(300);
                     ivBasicImage.setY(1000);
@@ -304,7 +334,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
 
         }
     }
-
+    // this function says what it does: It adds 1 to score and gets called if right
     public void addToScore() {
         final TextView scoreOnView = this.<TextView>findViewById(R.id.Score);
         score++;
@@ -314,43 +344,37 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         }
 
     }
-
+    //Makes Player loose and send them to game over sceen / activity with theit score and highscore
     public void gameOver() {
-        System.out.println("gameOver");
-        Intent i  = new Intent(GameActivity.this, GameOver.class);
-        System.out.println(score+" "+highscore);
-        i.putExtra("score",score);
-        i.putExtra("highscore",highscore);
-        startActivity(i);
+        Intent i = new Intent(GameActivity.this, GameOver.class); // new intent
+        i.putExtra("score", score); // send score with intent
+        i.putExtra("highscore", highscore); // send highscore with intent
+        startActivity(i); // start the new acticivity with the new intent
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
 
     }
-
+    //here the countdown starts and starts counting down from 30 seconds
+    // onFinish gameOver gets called again
     public void gameOverByTimeout() {
         TextView countdownOnView = this.<TextView>findViewById(R.id.countdown);
         //stack overflow help i found for this: https://stackoverflow.com/questions/10032003/how-to-make-a-countdown-timer-in-android?newreg=c2817f9bbeaa4cf3afe7c3db9ebe9833
         new CountDownTimer(30000, 1000) {
-
             public void onTick(long ms) {
-                countdownOnView.setText("countdown: " + ms / 1000);
-
+                countdownOnView.setText("countdown: " + ms / 1000); // setting time left on View
             }
-
             public void onFinish() {
-                countdownOnView.setText("done!");
                 gameOver();
             }
-
         }.start();
 
     }
 
     @Override
     protected void onPause() {
-        sensorManager.unregisterListener(this, accelerator);
+        sensorManager.unregisterListener(this, gyro); // on pause we unregister gyro for performance
         super.onPause();
     }
 
@@ -366,8 +390,8 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         super.onResume();
 
         try {
-            getCriminals();
-            getStockPeople();
+            getCriminals(); // call the api
+            getStockPeople(); // cal the api
             //getDogs();
             //getCats();
 
@@ -378,7 +402,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             e.printStackTrace();
         }
         spawn();
-
-        sensorManager.registerListener(this, accelerator, SensorManager.SENSOR_DELAY_NORMAL);
+        // On pause we register a listener for the gyro sensor
+        sensorManager.registerListener(this, gyro, SensorManager.SENSOR_DELAY_NORMAL);
     }
 }

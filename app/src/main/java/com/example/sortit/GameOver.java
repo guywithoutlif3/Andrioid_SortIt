@@ -15,21 +15,22 @@ import androidx.appcompat.app.AppCompatActivity;
 import org.w3c.dom.Text;
 
 public class GameOver extends AppCompatActivity {
+    /*initsalisation of score and highscore*/
     int score;
     int highscore;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //get score and highscore from mainActivity
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_gameover);
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            score = extras.getInt("score");
-            highscore = extras.getInt("highscore");
+        setContentView(R.layout.activity_gameover); // the the view that is ontextually used here
+        Bundle extras = getIntent().getExtras(); // get the intent
+        if (extras != null) { // if intent not empty
+            score = extras.getInt("score"); // get score from intend
+            highscore = extras.getInt("highscore"); // get highscorew from intent
             TextView viewScore = (TextView) findViewById(R.id.score);
             TextView viewHighscore = (TextView) findViewById(R.id.highscore);
-            viewScore.setText("Score: " + score);
-            viewHighscore.setText("Highscore: " + highscore);
+            viewScore.setText("Score: " + score);// set on View with score
+            viewHighscore.setText("Highscore: " + highscore);// set on View with highscore
 
         }
 
@@ -39,11 +40,11 @@ public class GameOver extends AppCompatActivity {
             public void onClick(View v) {
                 // Code here executes on main thread after user presses button
                 // in our case we switch to GameActivity
-                Intent i  = new Intent(GameOver.this, MainActivity.class);
+                Intent i  = new Intent(GameOver.this, MainActivity.class); // NEW INTENT
 
-                i.putExtra("score",score);
-                i.putExtra("highscore",score);
-                startActivity(i);
+                i.putExtra("score",score);   // PUT SCORE IN
+                i.putExtra("highscore",score); // PUT HIGHSCORE IN
+                startActivity(i); // SEND US TO MAIN ACTIVITY AGAIN
 
             }
         });
