@@ -111,7 +111,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override // on pause make notificatiuon chanel set its content and notofy the user at an annoying pace
+    @Override
+    // on pause make notificatiuon chanel set its content and notofy the user at an annoying pace
     protected void onPause() {
         createNotificationChannel();
 
@@ -127,10 +128,9 @@ public class MainActivity extends AppCompatActivity {
                 .setPriority(NotificationCompat.PRIORITY_HIGH);
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
         // notificationId is a unique int for each notification that you must define
-        while (true){
-            notificationManager.notify(1, builder.build());
-            super.onPause();
-        }
+        notificationManager.notify(1, builder.build());
+        super.onPause();
+
 
     }
 
